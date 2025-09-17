@@ -112,6 +112,11 @@ body {
   background: var(--primary-600);
   /* color: var(--text); */
 }
+.expenses-card {
+  background: var(--bg);
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+  border: 1px solid var(--surface-border);
+}
 
 input,
 textarea,

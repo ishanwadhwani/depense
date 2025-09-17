@@ -145,11 +145,6 @@ export default function RecordPayment({
           (item) => !(item.fromId === s.fromId && item.toId === s.toId)
         )
       );
-
-      // re-fetch debts so the entry disappears
-      // await fetchDebts();
-
-      // notify parent (will increment refreshKey)
       if (typeof onDone === "function") {
         onDone(data);
       }
@@ -169,9 +164,8 @@ export default function RecordPayment({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Record Payment</h2>
       {settlements.length === 0 ? (
-        <p className="text-gray-500">You don’t owe anything 🎉</p>
+        <p className="text-gray-500">You don&apos;t owe anything 🎉</p>
       ) : (
         <ul className="space-y-3">
           {settlements.map((s, idx) => (
