@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useAuth } from "@/context/AuthContext";
 
-type UserLite = { id: string; name?: string; email?: string };
+import { useAuth } from "@/context/AuthContext";
+import { safeName } from "@/utils/safeName";
+
+type UserLite = { id?: string; name?: string; email?: string; userId?: string };
 type GroupRef = { id: string; name?: string } | null;
 
 export type Expense = {
@@ -28,6 +30,11 @@ type Props = {
   onItemsChange?: (items: Expense[]) => void;
   refreshKey?: number;
 };
+
+// function safeName(user?: UserLite | null) {
+//   if (!user) return "Someone";
+//   return user.name ?? user.email ?? user.id ?? user.userId ?? "Someone";
+// }
 
 export default function ExpensesList({
   groupId,
@@ -66,28 +73,10 @@ export default function ExpensesList({
           );
         }
         const data = (await res.json()) as Expense[];
-        // when groupId is present the server already returned only group expenses
+
         const filtered = groupId ? data : data;
         setItems(filtered);
         if (onItemsChange) setTimeout(() => onItemsChange(filtered), 0);
-        // const res = await fetch(`${API}/expenses`, {
-        //   headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        //   signal: controller.signal,
-        // });
-        // if (!res.ok) {
-        //   const payload = await res.json().catch(() => null);
-        //   throw new Error(
-        //     payload?.error || `Failed to load expenses (${res.status})`
-        //   );
-        // }
-        // const data = (await res.json()) as Expense[];
-        // if (!mounted) return;
-
-        // const filtered = groupId
-        //   ? data.filter((e) => e.group?.id === groupId)
-        //   : data;
-        // setItems(filtered);
-        // if (onItemsChange) setTimeout(() => onItemsChange(filtered), 0);
       } catch (err: unknown) {
         if (err instanceof Error && err.name === "AbortError") return;
         setError(
@@ -148,6 +137,12 @@ export default function ExpensesList({
     }
   };
 
+  const sorted = items.slice().sort((a, b) => {
+    const aTime = a.createdAt ? new Date(a.createdAt).getTime() : Date.now();
+    const bTime = b.createdAt ? new Date(b.createdAt).getTime() : Date.now();
+    return bTime - aTime;
+  });
+
   return (
     <div>
       {loading ? (
@@ -158,145 +153,74 @@ export default function ExpensesList({
         <div className="text-gray-500">No expenses yet.</div>
       ) : (
         <ul className="space-y-3">
-          {/* {items.map((e) => (
-            <li
-              key={e.id}
-              className="card p-3 flex justify-between items-start"
-            >
-              <div>
-                <div className="font-semibold">{e.description}</div>
-                <div className="text-sm muted">
-                  {new Date(e.createdAt).toLocaleString()} •{" "}
-                  {e.group ? e.group.name : "Personal"}{" "}
-                  {e.paidBy
-                    ? `• Paid by ${
-                        e.paidBy.name ?? e.paidBy.email ?? e.paidBy.id
-                      }`
-                    : ""}
-                </div>
-                {e.expenseShare && e.expenseShare.length > 0 && (
-                  <div className="text-sm mt-1">
-                    Shares:
-                    {e.expenseShare.map((s) => (
-                      <span key={s.id} className="mr-2 text-xs text-gray-600">
-                        {(s.user && (s.user.name ?? s.user.email)) ?? s.userId}: ₹{s.amount}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex flex-col items-end gap-2">
-                <div className="text-lg font-bold">₹{e.amount.toFixed(2)}</div>
-                <button
-                  onClick={() => handleDelete(e.id)}
-                  className="text-sm text-red-600 hover:underline"
-                  aria-label={`Delete expense ${e.description}`}
-                >
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))} */}
-          {/* {items.map((e) => (
-            <li
-              key={e.id}
-              className="p-4 bg-white dark:bg-gray-800 rounded shadow"
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <div className="font-semibold">
-                    {e.isPayment
-                      ? `💸 Payment: ${e.paidBy?.name ?? "Someone"} → ${
-                          e.expenseShare?.[0]?.user?.name ?? "Someone"
-                        }`
-                      : e.description}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {new Date(e.createdAt).toLocaleDateString()}{" "}
-                    {e.group ? `• Group: ${e.group.name}` : "• Personal"}
-                  </div>
-                </div>
-                <div className="text-lg font-bold">₹{e.amount}</div>
-              </div>
-            </li>
-          ))} */}
-          {items
-            .slice()
-            .sort(
-              (a, b) =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime()
-            )
-            .map((e) => (
+          {sorted.map((e) => {
+            const createdAtDate = e.createdAt ? new Date(e.createdAt) : null;
+            const createdAtStr =
+              createdAtDate && !isNaN(createdAtDate.getTime())
+                ? createdAtDate.toLocaleString()
+                : "Pending...";
+            const amount = typeof e.amount === "number" ? e.amount : 0;
+            return (
               <li
-                key={e.id}
-                className="p-4 bg-white dark:bg-gray-800 rounded shadow"
+                key={`${e.id}-${e.createdAt ?? "pending"}`}
+                className="p-4 expenses-card rounded-lg shadow-sm hover:shadow-md transition"
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    {e.isPayment ? (
-                      <>
-                        <div className="font-semibold flex items-center gap-2">
-                          💸 Payment
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {e.paidBy?.name ?? "Someone"} →{" "}
-                          {e.expenseShare?.[0]?.user?.name ?? "Someone"}
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="font-semibold">{e.description}</div>
-                        <div className="text-sm text-gray-500">
-                          {new Date(e.createdAt).toLocaleDateString()}{" "}
-                          {e.group ? `• Group: ${e.group.name}` : "• Personal"}{" "}
-                          {e.paidBy
-                            ? `• Paid by ${
-                                e.paidBy.name ?? e.paidBy.email ?? e.paidBy.id
-                              }`
-                            : ""}
-                        </div>
-                      </>
-                    )}
+                    <div className="font-semibold">
+                      {e.isPayment
+                        ? `💸 Payment: ${safeName(e.paidBy)} → ${safeName(
+                            e.expenseShare?.[0]?.user ?? {
+                              userId: e.expenseShare?.[0]?.userId,
+                            }
+                          )}`
+                        : e.description}
+                    </div>
+
+                    <div className="mt-1 text-xs muted font-medium">
+                      {createdAtStr} |{" "}
+                      {e.paidBy
+                        ? `Paid by ${safeName(e.paidBy)}`
+                        : "Paid by Someone"}
+                    </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-2">
-                    <div className="text-lg font-bold">
-                      ₹
-                      {typeof e.amount === "number"
-                        ? e.amount.toFixed(2)
-                        : "0.00"}
-                    </div>
-                    {!e.isPayment && (
-                      <button
-                        onClick={() => handleDelete(e.id)}
-                        className="text-sm text-red-600 hover:underline"
-                        aria-label={`Delete expense ${e.description}`}
-                      >
-                        Delete
-                      </button>
-                    )}
+                  <div
+                    className={`text-lg font-bold ${
+                      e.isPayment ? "text-positive" : "sub-heading"
+                    }`}
+                  >
+                    ₹{amount.toFixed(2)}
                   </div>
                 </div>
 
-                {/* Normal expense shares */}
-                {!e.isPayment &&
-                  e.expenseShare &&
-                  e.expenseShare.length > 0 && (
-                    <div className="text-sm mt-1">
-                      Shares:
+                {e.expenseShare && e.expenseShare.length > 0 && (
+                  <details className="mt-2 text-sm">
+                    <summary className="cursor-pointer muted">
+                      View split
+                    </summary>
+                    <ul className="mt-1 space-y-1">
                       {e.expenseShare.map((s) => (
-                        <span key={s.id} className="mr-2 text-xs text-gray-600">
-                          {(s.user && (s.user.name ?? s.user.email)) ??
-                            s.userId}
-                          : ₹{s.amount}
-                        </span>
+                        <li key={s.id} className="muted">
+                          {safeName(s.user ?? { userId: s.userId })}: ₹
+                          {(s.amount ?? 0).toFixed(2)}
+                        </li>
                       ))}
-                    </div>
-                  )}
+                    </ul>
+                  </details>
+                )}
+
+                <div className="flex justify-end mt-2">
+                  <button
+                    onClick={() => handleDelete(e.id)}
+                    className="cursor-pointer text-xs text-red-600 hover:underline"
+                  >
+                    Delete
+                  </button>
+                </div>
               </li>
-            ))}
+            );
+          })}
         </ul>
       )}
     </div>

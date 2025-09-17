@@ -23,7 +23,6 @@ type Settlement = {
 type ApiResponse = {
   group?: string;
   balances?: Balance[];
-  // settlements?: Settlement[];
   settlementsRaw: Settlement[];
   settlementsSimplified: Settlement[];
 };
@@ -71,7 +70,6 @@ export default function Settlements({ groupId, refreshKey }: Props) {
   }, [simplify]);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-  // const currentUserId: string | null = user ? user.id : null;
 
   useEffect(() => {
     if (!token) return;
@@ -82,15 +80,6 @@ export default function Settlements({ groupId, refreshKey }: Props) {
       setLoading(true);
       setError(null);
       try {
-        // const res = await fetch(
-        //   `${API}/groups/${groupId}/settlements${
-        //     simplify ? "?simplify=true" : ""
-        //   }`,
-        //   {
-        //     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        //     signal: controller.signal,
-        //   }
-        // );
         const res = await fetch(`${API}/groups/${groupId}/settlements`, {
           headers: { Authorization: `Bearer ${token}` },
           signal: controller.signal,
@@ -152,40 +141,6 @@ export default function Settlements({ groupId, refreshKey }: Props) {
     name: b.name ?? null,
   }));
 
-  // const settlementsByReceiver: Record<
-  //   string,
-  //   { receiver?: string | null; total: number; details: Settlement[] }
-  // > = {};
-
-  // if (data.settlements) {
-  //   for (const s of data.settlements) {
-  //     if (s.amount < 1) continue;
-  //     if (!settlementsByReceiver[s.toId]) {
-  //       settlementsByReceiver[s.toId] = {
-  //         receiver: s.toName ?? s.toId,
-  //         total: 0,
-  //         details: [],
-  //       };
-  //     }
-  //     settlementsByReceiver[s.toId].total += s.amount;
-  //     settlementsByReceiver[s.toId].details.push(s);
-  //   }
-  // }
-
-  // const byReceiver: Record<
-  //   string,
-  //   { receiverName?: string | null; total: number; details: Settlement[] }
-  // > = {};
-  // for (const s of settlements) {
-  //   const toId = s.toId;
-  //   byReceiver[toId] = byReceiver[toId] || {
-  //     receiverName: s.toName ?? null,
-  //     total: 0,
-  //     details: [],
-  //   };
-  //   byReceiver[toId].total += s.amount;
-  //   byReceiver[toId].details.push(s);
-  // }
   const byReceiver: Record<
     string,
     { receiverName?: string | null; total: number; details: Settlement[] }
@@ -195,7 +150,6 @@ export default function Settlements({ groupId, refreshKey }: Props) {
   }
 
   for (const s of visibleSettlements) {
-    // ensure receiver key exists
     byReceiver[s.toId] = byReceiver[s.toId] || {
       receiverName: s.toName ?? null,
       total: 0,
@@ -210,59 +164,12 @@ export default function Settlements({ groupId, refreshKey }: Props) {
   const currentUserId = user?.id ?? null;
   const myBalance =
     data.balances?.find((b) => b.userId === currentUserId)?.balance ?? 0;
-
-  // const myBalance =
-  //   data.balances?.find((b) => b.userId === currentUserId)?.balance ?? 0;
-
-  // backend should give us *both* settlementsRaw and simplified
   const { balances, settlementsRaw, settlementsSimplified } = data;
 
-  // pick which to use
   const settlementsToUse = simplify ? settlementsSimplified : settlementsRaw;
 
   return (
     <div>
-      {/* <div className="mb-3">
-        <div className="text-sm muted">Group</div>
-        <div className="text-2xl font-semibold">{data.group}</div>
-      </div> */}
-      {/* <div className="flex justify-end mb-3">
-        <button
-          onClick={() => setSimplify((prev) => !prev)}
-          className="px-4 py-2 text-sm font-medium rounded bg-indigo-600 text-white hover:bg-indigo-700"
-        >
-          {simplify ? "Show Raw Debts" : "Simplify Debts"}
-        </button>
-      </div> */}
-
-      {/* <div className="flex items-center gap-2">
-        <div className="text-sm text-gray-600 mr-3">
-          {currentUserId ? (
-            myBalance >= 0 ? (
-              <span>
-                You should get back{" "}
-                <span className="font-bold text-green-600">
-                  ₹{myBalance.toFixed(2)}
-                </span>
-              </span>
-            ) : (
-              <span>
-                You owe{" "}
-                <span className="font-bold text-red-600">
-                  ₹{Math.abs(myBalance).toFixed(2)}
-                </span>
-              </span>
-            )
-          ) : null}
-        </div>
-
-        <button
-          onClick={() => setSimplify((s) => !s)}
-          className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 text-sm"
-        >
-          {simplify ? "Show Raw" : "Simplify"}
-        </button>
-      </div> */}
       <div className="flex items-center justify-between mb-4">
         <div className="text-sm sub-heading">
           {currentUserId ? (
@@ -283,13 +190,6 @@ export default function Settlements({ groupId, refreshKey }: Props) {
             )
           ) : null}
         </div>
-
-        {/* <button
-          onClick={() => setSimplify((s) => !s)}
-          className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700 text-sm"
-        >
-          {simplify ? "Show Raw" : "Simplify"}
-        </button> */}
         <button
           onClick={() => setSimplify((prev) => !prev)}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200 ease-in-out cursor-pointer
@@ -302,53 +202,10 @@ export default function Settlements({ groupId, refreshKey }: Props) {
       </div>
 
       {/* Balances */}
-      {/* <div className="mb-4">
-        <div className="text-sm font-medium mb-2">Balances</div>
-        {data.balances && data.balances.length > 0 ? (
-          <ul className="space-y-2">
-            {data.balances.map((b) => {
-              const isCurrentUser = b.userId === user?.id;
-              return (
-                <li
-                  key={b.userId}
-                  className={`flex items-center justify-between ${
-                    isCurrentUser ? "" : ""
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm">
-                      {b.name
-                        ? b.name.charAt(0).toUpperCase()
-                        : b.userId.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="font-medium">
-                        {isCurrentUser ? "You" : b.name ?? b.userId}
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    className={
-                      b.balance >= 0 ? "text-positive" : "text-negative"
-                    }
-                  >
-                    {b.balance >= 0
-                      ? `+₹${b.balance.toFixed(2)}`
-                      : `-₹${Math.abs(b.balance).toFixed(2)}`}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        ) : (
-          <div className="text-sm text-gray-500">No balances yet.</div>
-        )}
-      </div> */}
-
       <div className="mx-auto rounded-lg shadow-sm">
         <button
           onClick={() => setIsOpen((prev) => !prev)}
-          className="flex items-center justify-between w-full p-4 text-left rounded cursor-pointer"
+          className="flex items-center justify-between w-full p-3 text-left rounded cursor-pointer shadow-lg hover:shadow-md transition"
           aria-expanded={isOpen}
           aria-controls="balances-content"
         >
@@ -404,106 +261,17 @@ export default function Settlements({ groupId, refreshKey }: Props) {
         </div>
       </div>
 
-      {/* Accordian */}
-      {/* <div className="space-y-4">
-        {Object.keys(byReceiver).length === 0 ? (
-          <div className="text-sm text-gray-500">No settlements to show 🎉</div>
-        ) : (
-          Object.entries(byReceiver).map(([toId, block]) => (
-            <details
-              key={toId}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow p-3"
-            >
-              <summary className="cursor-pointer font-semibold text-gray-800 dark:text-gray-100">
-                {block.receiverName ?? toId} should receive{" "}
-                <span className="text-green-600 font-bold">
-                  ₹{block.total.toFixed(2)}
-                </span>
-              </summary>
-
-              <ul className="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                {block.details.map((d, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center justify-between py-1"
-                  >
-                    <div>{d.fromName ?? d.fromId} owes</div>
-                    <div className="font-semibold">₹{d.amount.toFixed(2)}</div>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          ))
-        )}
-      </div> */}
-
-      {/* Accordions per member (receiver/payer) */}
-      {/* <div className="space-y-3">
-        {members.map((m) => {
-          const block = byReceiver[m.userId];
-          const total = block ? block.total : 0;
-          const details = block ? block.details : [];
-          return (
-            <SettlementAccordion
-              key={m.userId}
-              member={{ userId: m.userId, name: m.name }}
-              total={total}
-              details={details}
-              currentUserId={currentUserId}
-            />
-          );
-        })}
-      </div> */}
       <div>
-        {/* <button
-          onClick={() => setSimplify((s) => !s)}
-          className="px-3 py-1 bg-blue-600 text-white rounded"
-        >
-          {simplify ? "Show Raw Debts" : "Simplify Debts"}
-        </button> */}
-
         <div className="space-y-2 mt-4">
           {balances?.map((m) => (
             <SettlementAccordion
               key={m.userId}
               member={m}
-              settlements={settlementsToUse || []} // <-- now respects toggle
+              settlements={settlementsToUse || []}
             />
           ))}
         </div>
       </div>
-
-      {/* <div>
-        <div className="text-sm font-medium mb-2">Who pays whom</div>
-        {data.settlements && data.settlements.length > 0 ? (
-          <ul className="space-y-2">
-            {data.settlements.map((s, idx) => (
-              <li key={idx} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm text-[var(--text)]">
-                    {s.fromName
-                      ? s.fromName.charAt(0).toUpperCase()
-                      : s.fromId.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="text-sm">
-                    <div className="font-medium">{s.fromName ?? s.fromId}</div>
-                    <div className="text-xs text-gray-500">pays</div>
-                  </div>
-                  <div className="mx-2">→</div>
-                  <div className="text-sm">
-                    <div className="font-medium">{s.toName ?? s.toId}</div>
-                    <div className="text-xs text-gray-500">receives</div>
-                  </div>
-                </div>
-
-                <div className="font-semibold">₹{s.amount.toFixed(2)}</div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="text-sm text-gray-500">No settlements suggested.</div>
-        )}
-      </div> */}
     </div>
   );
 }

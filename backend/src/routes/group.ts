@@ -12,7 +12,6 @@ function round2(v: number) {
   return Math.round(v * 100) / 100;
 }
 
-
 router.post("/", authMiddleware, async (req: AuthRequest, res) => {
   try {
     const { name, members } = req.body;
@@ -344,10 +343,6 @@ router.get(
 //   }
 // );
 
-
-
-
-
 // inside routes/group.ts (replace the old settlements handler)
 router.get(
   "/:groupId/settlements",
@@ -410,7 +405,9 @@ router.get(
           if (fromId === toId) continue;
           const sign = exp.isPayment ? -1 : 1; // payments reduce pairwise debt
           pairAgg[toId] = pairAgg[toId] || {};
-          pairAgg[toId][fromId] = round2((pairAgg[toId][fromId] || 0) + sign * amt);
+          pairAgg[toId][fromId] = round2(
+            (pairAgg[toId][fromId] || 0) + sign * amt
+          );
         }
       }
 
@@ -440,14 +437,26 @@ router.get(
       }
 
       // 4) Simplify: compute simplified settlements from net balances (greedy)
-      const creditors: { id: string; name?: string | null; amount: number }[] = [];
-      const debtors: { id: string; name?: string | null; amount: number }[] = [];
+      const creditors: { id: string; name?: string | null; amount: number }[] =
+        [];
+      const debtors: { id: string; name?: string | null; amount: number }[] =
+        [];
 
       for (const m of group.members) {
         const bal = round2(balancesMap[m.userId] || 0);
         if (Math.abs(bal) < 0.01) continue;
-        if (bal > 0) creditors.push({ id: m.userId, name: m.user?.name ?? null, amount: bal });
-        if (bal < 0) debtors.push({ id: m.userId, name: m.user?.name ?? null, amount: -bal });
+        if (bal > 0)
+          creditors.push({
+            id: m.userId,
+            name: m.user?.name ?? null,
+            amount: bal,
+          });
+        if (bal < 0)
+          debtors.push({
+            id: m.userId,
+            name: m.user?.name ?? null,
+            amount: -bal,
+          });
       }
 
       const settlementsSimplified: {
@@ -458,7 +467,8 @@ router.get(
         amount: number;
       }[] = [];
 
-      let d = 0, c = 0;
+      let d = 0,
+        c = 0;
       while (d < debtors.length && c < creditors.length) {
         const debtor = debtors[d];
         const creditor = creditors[c];
@@ -486,7 +496,9 @@ router.get(
       });
     } catch (err) {
       console.error("Error calculating settlements:", err);
-      return res.status(500).json({ error: "Something went wrong while calculating settlements" });
+      return res
+        .status(500)
+        .json({ error: "Something went wrong while calculating settlements" });
     }
   }
 );
@@ -527,21 +539,25 @@ router.post(
       const payment = await prisma.expense.create({
         data: {
           description: `Payment from ${fromId} to ${toId}`,
-          amount: Number(amount),
-          paidById: fromId,
+          amount,
           groupId,
+          paidById: fromId,
           isPayment: true,
           expenseShare: {
-            create: [
-              {
-                userId: toId,
-                amount: Number(amount),
-              },
-            ],
+            create: {
+              userId: toId,
+              amount,
+            },
           },
         },
-        include: { expenseShare: true },
+        include: {
+          paidBy: true,
+          expenseShare: { include: { user: true } },
+          group: true,
+        },
       });
+
+      res.json(payment);
 
       // compute updated settlements by calling the same logic as above:
       const refreshedGroup = await prisma.group.findUnique({
