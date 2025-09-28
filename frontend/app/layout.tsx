@@ -5,6 +5,7 @@ import { AuthProvider } from "../context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import Navbar from "@/components/Navbar";
 import { ToastProvider } from "@/components/ToastProvider";
+import Footer from "@/components/Footer"
 
 export const metadata: Metadata = {
   title: "Depense",
@@ -24,6 +25,7 @@ export default function RootLayout({
             <ToastProvider>
               <Navbar />
               <main className="container mx-auto px-4">{children}</main>
+              <Footer />
             </ToastProvider>
           </AuthProvider>
         </ThemeProvider>

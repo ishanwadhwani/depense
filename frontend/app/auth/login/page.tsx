@@ -43,7 +43,7 @@ export default function LoginPage() {
         title: "Logged In",
         message: "Welcome back! 🎉",
       });
-      router.replace("/");
+      router.replace("/expenses");
     } catch (error) {
       console.error(error);
       toast.push({

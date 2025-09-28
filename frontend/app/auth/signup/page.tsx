@@ -43,7 +43,7 @@ export default function SignupPage() {
         title: "Success",
         message: "Account created 🎉",
       });
-      router.replace("/");
+      router.replace("/expenses");
     } catch (error) {
       console.error(error);
       toast.push({

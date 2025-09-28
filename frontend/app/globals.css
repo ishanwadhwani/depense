@@ -4,31 +4,43 @@
 @tailwind components; */
 @tailwind utilities;
 
-html {
-  overflow-y: scroll; /* force scrollbar always */
-}
+/* html {
+  overflow-y: scroll;
+} */
 
 :root {
   /* LIGHT THEME */
   --bg: #f7f9f9;
   --card-bg: #ffffff;
-  --profile: #EEF2FF;
+  --heading: #3d4849;
+  --profile: #eef2ff;
   --primary: #5dba9d;
-  --primary-600: #4ea989;
+  --primary-50: #e8f7f1;
+  --primary-100: #d8f1ea;
+  --primary-400: #7ed3b0;
+  --primary-500: #5dba9d;
+  --primary-600: #48a884;
   --text: #3d4849;
   --muted: #98a4a3;
   --positive: #68a6e3;
   --negative: #e88d83;
   --glass: rgba(255, 255, 255, 0.6);
   --surface-border: rgba(0, 0, 0, 0.06);
+  --illustration-from: #beeae2;
+  --illustration-to: #9ce0c6;
+  --border: rgba(0, 0, 0, 0.06);
+  --header-bg: #FFFFFF;
 }
 
 /* DARK THEME */
 .dark {
   --bg: #1a1d28;
   --card-bg: #0f1116;
+  --heading: #D0D4E4;
   --profile: #e0e7ff;
   --primary: #8a9bff;
+  --primary-50: #2B2F4E;
+  --primary-500: #8A9BFF;
   --primary-600: #6d7cff;
   --text: #d0d4e4;
   --muted: #9aa3b2;
@@ -36,6 +48,10 @@ html {
   --negative: #ffc97b;
   --glass: rgba(255, 255, 255, 0.04);
   --surface-border: rgba(255, 255, 255, 0.04);
+  --illustration-from: #23263a;
+  --illustration-to: #2d3348;
+  --border: rgba(255,255,255,0.04);
+  --header-bg: #0f1116;
 }
 
 /* Warm theme */
@@ -54,6 +70,12 @@ html,
 body,
 #__next {
   height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -63,6 +85,10 @@ body {
     Roboto, "Helvetica Neue", Arial;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body > * {
+  box-sizing: border-box;
 }
 
 .card {
@@ -112,6 +138,18 @@ body {
   background: var(--primary-600);
   /* color: var(--text); */
 }
+.auth-btn {
+  background: var(--primary-600);
+  color: #ffffff;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+.auth-btn:hover {
+  background: var(--primary);
+  transition: background-color 1s;
+}
 .expenses-card {
   background: var(--bg);
   box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
@@ -156,6 +194,6 @@ input[type="number"] {
 
 /* Hide scrollbar for IE, Edge, Firefox */
 .scrollbar-hide {
-  -ms-overflow-style: none; /* IE/Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
