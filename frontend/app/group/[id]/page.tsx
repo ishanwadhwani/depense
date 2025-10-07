@@ -9,31 +9,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Settlements from "@/components/Settlements";
 import ExpensesList from "@/components/ExpensesList";
 import GroupAddExpense from "@/components/GroupAddExpense";
-// import SettleUp from "@/components/SettleUp";
 import RecordPayment from "@/components/RecordPayment";
-
-type UserLite = { id: string; name?: string; email?: string };
-type Member = {
-  id: string;
-  userId: string;
-  user?: { name?: string; email?: string };
-};
-type Group = { id: string; name: string; members?: Member[] };
-type Expense = {
-  id: string;
-  description: string;
-  amount: number;
-  createdAt: string;
-  group?: { id: string; name?: string } | null;
-  paidBy?: UserLite | null;
-  expenseShare?: Array<{ id: string; userId: string; amount: number }>;
-};
-
-type MemberFromApi = {
-  id: string;
-  userId: string;
-  user?: { name?: string; email?: string };
-};
+import { Expense, Member, Group, MemberFromApi } from "@/utils/types";
 
 export default function GroupDetailPage() {
   const params = useParams();

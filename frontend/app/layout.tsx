@@ -19,12 +19,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body className="min-h-screen flex flex-col overflow-x-hidden antialiased">
         <ThemeProvider>
           <AuthProvider>
             <ToastProvider>
               <Navbar />
-              <main className="container mx-auto px-4">{children}</main>
+              <main className="flex-1 container mx-auto px-4">{children}</main>
               <Footer />
             </ToastProvider>
           </AuthProvider>

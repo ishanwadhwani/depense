@@ -30,6 +30,8 @@
   --illustration-to: #9ce0c6;
   --border: rgba(0, 0, 0, 0.06);
   --header-bg: #FFFFFF;
+  --unselected-btn: #e5e7eb;
+  --unselected-btn-text: #6a7282;
 }
 
 /* DARK THEME */
@@ -52,6 +54,8 @@
   --illustration-to: #2d3348;
   --border: rgba(255,255,255,0.04);
   --header-bg: #0f1116;
+  --unselected-btn: #e5e7eb;
+  --unselected-btn-text: #6a7282;
 }
 
 /* Warm theme */

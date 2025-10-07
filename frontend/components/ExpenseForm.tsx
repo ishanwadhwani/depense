@@ -83,10 +83,8 @@ export default function ExpenseForm({ groupId, members, onCreated }: Props) {
       }
 
       const created = (await res.json()) as Expense;
-      // notify parent to update list
       if (onCreated) onCreated(created);
-
-      // reset
+      
       setDescription("");
       setAmount("");
       setSplitEqual(false);

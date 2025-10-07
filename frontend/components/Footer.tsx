@@ -25,7 +25,7 @@ export default function Footer() {
   return (
     <>
       <footer className="w-full bg-[var(--card-bg)] border-t border-[var(--surface-border)]">
-        <div className="max-w-6xl mx-auto px-4 py-10 md:py-14">
+        <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
           <div className="grid md:grid-cols-3 gap-8">
             <div className="space-y-3">
               <Link href="/" className="text-2xl font-bold text-[var(--text)]">

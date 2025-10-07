@@ -535,10 +535,24 @@ router.post(
           .json({ error: "Both users must be in the group" });
       }
 
+      const users = await prisma.user.findMany({
+        where: {
+          id: { in: [fromId, toId] },
+        },
+        select: { id: true, name: true },
+      });
+
+      const fromUser = users.find((u) => u.id === fromId);
+      const toUser = users.find((u) => u.id === toId);
+
+      const description = `Payment from ${fromUser?.name || fromId} to ${
+        toUser?.name || toId
+      }`;
+
       // create payment expense (isPayment=true) - paidBy = payer (fromId)
       const payment = await prisma.expense.create({
         data: {
-          description: `Payment from ${fromId} to ${toId}`,
+          description: description,
           amount,
           groupId,
           paidById: fromId,

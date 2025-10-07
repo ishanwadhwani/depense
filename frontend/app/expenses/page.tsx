@@ -16,10 +16,11 @@ type Expense = {
   createdAt: string;
   group?: Group | null;
   paidBy?: User | null;
+  isPayment?: boolean;
 };
 
 export default function ExpensesPage() {
-  const { token, isReady } = useAuth();
+  const { token, isReady, user } = useAuth();
   const toast = useToast();
   const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -40,7 +41,8 @@ export default function ExpensesPage() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
-  // fetch all expenses & groups (for group select)
+  const loggedInUserName = user?.name;
+
   useEffect(() => {
     if (!isReady) return;
     if (!token) {
@@ -296,7 +298,7 @@ export default function ExpensesPage() {
                 setShowAdd(true);
                 setAddType(mode === "group" ? "group" : "personal");
               }}
-              className="btn-primary"
+              className="btn-primary cursor-pointer"
             >
               + Add Expense
             </button>
@@ -359,7 +361,14 @@ export default function ExpensesPage() {
                   className="card p-3 flex justify-between items-start"
                 >
                   <div>
-                    <div className="font-semibold">{e.description}</div>
+                    <div className="font-semibold">
+                      {e.isPayment && loggedInUserName
+                        ? e.description.replace(
+                            new RegExp(loggedInUserName, "g"),
+                            "you"
+                          )
+                        : e.description}
+                    </div>
                     <div className="text-sm muted">
                       {new Date(e.createdAt).toLocaleString()}{" "}
                       {e.group ? `• ${e.group.name}` : "• Personal"}
@@ -399,7 +408,7 @@ export default function ExpensesPage() {
                       className={`px-3 py-1 rounded ${
                         addType === "personal"
                           ? "bg-[var(--primary)] text-white"
-                          : "bg-gray-100"
+                          : "bg-[var(--unselected-btn)] text-[var(--unselected-btn-text)]"
                       }`}
                     >
                       <input
@@ -415,7 +424,7 @@ export default function ExpensesPage() {
                       className={`px-3 py-1 rounded ${
                         addType === "group"
                           ? "bg-[var(--primary)] text-white"
-                          : "bg-gray-100"
+                          : "bg-[var(--unselected-btn)] text-[var(--unselected-btn-text)]"
                       }`}
                     >
                       <input
@@ -471,14 +480,14 @@ export default function ExpensesPage() {
                   <button
                     type="button"
                     onClick={() => setShowAdd(false)}
-                    className="px-3 py-1 rounded border"
+                    className="px-2 py-2 rounded-md border cursor-pointer text-sm font-medium hover:bg-[var(--muted)]/20 duration-300"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="btn-primary px-4 py-1"
+                    className="auth-btn cursor-pointer"
                   >
                     {submitting ? "Adding..." : "Add"}
                   </button>

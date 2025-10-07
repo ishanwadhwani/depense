@@ -4,25 +4,27 @@ import React, { useEffect, useState } from "react";
 
 import { useAuth } from "@/context/AuthContext";
 import { safeName } from "@/utils/safeName";
+import { Expense } from "@/utils/types";
 
-type UserLite = { id?: string; name?: string; email?: string; userId?: string };
-type GroupRef = { id: string; name?: string } | null;
 
-export type Expense = {
-  id: string;
-  description: string;
-  amount: number;
-  createdAt: string;
-  group?: GroupRef;
-  paidBy?: UserLite | null;
-  expenseShare?: Array<{
-    id: string;
-    userId: string;
-    amount: number;
-    user?: { name?: string; email?: string };
-  }>;
-  isPayment?: boolean;
-};
+// type UserLite = { id?: string; name?: string; email?: string; userId?: string };
+// type GroupRef = { id: string; name?: string } | null;
+
+// export type Expense = {
+//   id: string;
+//   description: string;
+//   amount: number;
+//   createdAt: string;
+//   group?: GroupRef;
+//   paidBy?: UserLite | null;
+//   expenseShare?: Array<{
+//     id: string;
+//     userId: string;
+//     amount: number;
+//     user?: { name?: string; email?: string };
+//   }>;
+//   isPayment?: boolean;
+// };
 
 type Props = {
   groupId?: string;

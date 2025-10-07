@@ -21,3 +21,21 @@ export type Expense = {
   }>;
   isPayment?: boolean;
 };
+
+export type Member = {
+  id: string;
+  userId: string;
+  user?: { name?: string; email?: string };
+};
+
+export type Group = {
+  id: string;
+  name: string;
+  members?: Member[];
+};
+
+export type MemberFromApi = {
+  id: string;
+  userId: string;
+  user?: { name?: string; email?: string };
+};
